@@ -8,6 +8,7 @@ public class Crossword{
     private int i = 0;
     private final int fivetoeight = randomnum(5, 8);
     private static int index = 0;
+    private int gaprow = 0;
     private int[][] indexholder = new int[fivetoeight][2];
     private String[] holidays = {"NewYears","IndependenceDay","Thanksgiving",
             "Christmas","MemorialDay","LaborDay",
@@ -78,20 +79,34 @@ public class Crossword{
         return index;
     }
 
-    public char[][] createBoard(Word[] words){
+    public char[][] createBoard(Word[] words, ConcurrentHashMap<int[], int[]> indexMap, ArrayList<Integer> taken){
         int rows = 0;
         int columns = 0;
+        int longest = indexOfLongestWord(words);
+        columns = words[longest].length();
+        int up = 0;
+        int down = 0;
+        for (ConcurrentHashMap.Entry<int[],int[]> mapElement : indexMap.entrySet()) {
+            int[] key = mapElement.getKey();
+            int[] value = (mapElement.getValue());
+            if(words[key[1]].length() - (value[1] + 1) > down){
+                down = words[key[1]].length() - value[1];
+            }
+            if(value[1] > up){
+                up = value[1];
+            }
+        }
+        rows = up + down + 1;
 
-
-
+        gaprow = up;
 
         //return finished initialized board;
         char[][] board = new char[rows][columns];
         return board;
     }
 
-    public void displayBoard(Word[] words){
-        char[][] board = new char[19][30];
+    public void displayBoard(Word[] words, ConcurrentHashMap<int[], int[]> map, ArrayList<Integer> taken){
+        char[][] board = createBoard(words, map, taken);
         //initializes board with bullets
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board[0].length; j++){
@@ -99,9 +114,17 @@ public class Crossword{
             }
         }
 
-        //lord have mercy. (not hardcoding i swear)
+        //display longest word in grid
         for(int i = 0; i < words[indexOfLongestWord(words)].length(); i++){ // first horizontal
-            board[9][i] = words[indexOfLongestWord(words)].toString().charAt(i);
+            board[gaprow][i] = words[indexOfLongestWord(words)].toString().charAt(i);
+        }
+
+        //display the rest of words
+
+        for (ConcurrentHashMap.Entry<int[],int[]> mapElement : map.entrySet()) { //insert char into each point
+            int[] key = mapElement.getKey();
+            int[] value = (mapElement.getValue());
+            for(int i = gaprow -)
         }
 
         //actually displays baord
@@ -217,6 +240,7 @@ public class Crossword{
         }
         System.out.println(unusedWords);
         System.out.println(map);
+        displayBoard(words, map, taken);
         //debug moment end
 
         //displayBoard(words);
